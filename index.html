@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gowri Javgal | Data engineering and analytics</title>
+<meta name="description" content="Gowri Javgal, Computer Science student in Bangalore building PySpark pipelines, analytics dashboards and ML systems. Open to data engineering and data analytics roles.">
+<meta property="og:title" content="Gowri Javgal | Data engineering and analytics">
+<meta property="og:description" content="PySpark pipelines, Power BI dashboards and an ICAIET 2026 paper on ML malware detection.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%231C2430'/%3E%3Crect x='12' y='40' width='12' height='12' fill='%239A5B2E'/%3E%3Crect x='26' y='28' width='12' height='24' fill='%23A7B0BB'/%3E%3Crect x='40' y='14' width='12' height='38' fill='%23C9A227'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EEF1F4;
+    --panel: #FFFFFF;
+    --ink: #1C2430;
+    --muted: #556171;
+    --line: #CBD3DC;
+    --link: #1F4E8C;
+    --bronze: #9A5B2E;
+    --silver: #6F7B89;
+    --gold: #8F6B0E;
+    --gold-bright: #C9A227;
+    --sans: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Martian Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid var(--link); outline-offset: 3px; border-radius: 2px; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Header ---------- */
+  .site-header { padding: 20px 0; }
+  .site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { font-weight: 800; color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+  .site-nav { display: flex; gap: 22px; flex-wrap: wrap; }
+  .site-nav a { color: var(--ink); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+  .site-nav a:hover { color: var(--link); text-decoration: underline; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 48px 0 72px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+  .hero h1 {
+    font-size: clamp(2.75rem, 6.4vw, 4.6rem);
+    line-height: 1.02;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    margin: 0 0 24px;
+  }
+  .hero .lede { font-size: 1.3rem; line-height: 1.45; max-width: 30ch; margin: 0 0 16px; font-weight: 500; }
+  .hero .sub { color: var(--muted); max-width: 46ch; margin: 0 0 28px; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn {
+    display: inline-block;
+    padding: 11px 18px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.98rem;
+    text-decoration: none;
+    border: 1.5px solid var(--ink);
+    color: var(--ink);
+    background: transparent;
+  }
+  .btn:hover { background: var(--panel); text-decoration: none; }
+  .btn.primary { background: var(--ink); color: var(--paper); }
+  .btn.primary:hover { background: #2B3646; }
+
+  /* Pipeline panel: the one memorable thing on the page */
+  .pipeline {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px -24px rgba(28, 36, 48, 0.45);
+  }
+  .layer-bar { height: 6px; background: var(--bronze); transition: background-color 0.4s ease; }
+  .pipeline[data-stage="silver"] .layer-bar { background: var(--silver); }
+  .pipeline[data-stage="gold"] .layer-bar { background: var(--gold-bright); }
+
+  .layer-tabs { display: flex; border-bottom: 1px solid var(--line); }
+  .layer-tabs button {
+    flex: 1;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    padding: 12px 8px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .layer-tabs button .swatch { width: 10px; height: 10px; border-radius: 2px; }
+  .layer-tabs button[data-stage="bronze"] .swatch { background: var(--bronze); }
+  .layer-tabs button[data-stage="silver"] .swatch { background: var(--silver); }
+  .layer-tabs button[data-stage="gold"] .swatch { background: var(--gold-bright); }
+  .layer-tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+  .layer-tabs button:hover { color: var(--ink); }
+
+  .layer-body { padding: 18px 20px 8px; min-height: 318px; }
+  .layer-title { font-weight: 700; margin: 0 0 2px; }
+  .layer-desc { color: var(--muted); font-size: 0.92rem; margin: 0 0 14px; }
+
+  .record { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.78rem; }
+  .record td { padding: 6px 0; border-top: 1px dashed var(--line); vertical-align: top; }
+  .record td.k { color: var(--muted); width: 36%; padding-right: 10px; }
+  .record td.v { color: var(--ink); font-weight: 500; }
+  .record td.n { text-align: right; font-family: var(--sans); font-size: 0.82rem; color: var(--muted); white-space: nowrap; padding-left: 8px; }
+  .record tr.bad td.v { color: var(--bronze); text-decoration: underline wavy var(--bronze); text-underline-offset: 4px; }
+  .record tr.bad td.n { color: var(--bronze); }
+  .record tr.fixed td.n { color: var(--silver); }
+  .record tr.metric td.v { color: var(--gold); font-weight: 500; }
+  .record .row-in { animation: rowIn 0.35s ease both; }
+  @keyframes rowIn { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .record .row-in { animation: none; }
+    .layer-bar { transition: none; }
+  }
+
+  .pipeline-foot {
+    padding: 10px 20px 14px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* ---------- Sections ---------- */
+  section.block { border-top: 1px solid var(--line); padding: 56px 0; }
+  section.block .wrap { display: grid; grid-template-columns: 220px 1fr; gap: 40px; }
+  section.block h2 {
+    font-size: 1.6rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0;
+    font-weight: 800;
+  }
+  section.block .aside-note { color: var(--muted); font-size: 0.92rem; margin: 10px 0 0; max-width: 24ch; }
+  .content { min-width: 0; max-width: 72ch; }
+
+  /* Projects */
+  .project { padding-bottom: 36px; margin-bottom: 36px; border-bottom: 1px solid var(--line); }
+  .project:last-of-type { border-bottom: 0; margin-bottom: 0; }
+  .project-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .project h3 { font-size: 1.3rem; line-height: 1.25; margin: 0; letter-spacing: -0.01em; }
+  .when { color: var(--muted); font-size: 0.92rem; white-space: nowrap; }
+  .stack { color: var(--muted); font-style: italic; margin: 4px 0 12px; font-size: 0.97rem; }
+  .project .outcome { font-weight: 500; margin: 0 0 10px; }
+  .project ul { margin: 0 0 12px; padding-left: 1.15em; }
+  .project li { margin-bottom: 6px; }
+  .project li::marker { color: var(--muted); }
+  .badge {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gold);
+    border: 1.5px solid var(--gold-bright);
+    border-radius: 4px;
+    padding: 1px 8px;
+    margin-left: 4px;
+    vertical-align: 2px;
+  }
+  .links { display: flex; gap: 18px; flex-wrap: wrap; font-weight: 500; }
+
+  .more-title { font-size: 1.05rem; margin: 44px 0 6px; }
+  .more-intro { color: var(--muted); margin: 0 0 14px; }
+  .more { list-style: none; margin: 0; padding: 0; }
+  .more li { display: grid; grid-template-columns: minmax(180px, 0.9fr) 2fr; gap: 6px 20px; padding: 12px 0; border-top: 1px dashed var(--line); }
+  .more li:last-child { border-bottom: 1px dashed var(--line); }
+  .more a { font-weight: 700; }
+  .more span { color: var(--muted); }
+
+  /* Publication */
+  .paper-title { font-size: 1.25rem; line-height: 1.35; font-weight: 700; margin: 0 0 10px; }
+  .authors { margin: 0 0 6px; }
+  .venue { color: var(--muted); margin: 0 0 14px; }
+
+  /* Experience */
+  .entry { margin-bottom: 28px; }
+  .entry:last-child { margin-bottom: 0; }
+  .entry h3 { font-size: 1.1rem; margin: 0; }
+  .entry .role { color: var(--muted); margin: 2px 0 8px; }
+  .entry p { margin: 0; }
+  .plain { list-style: none; padding: 0; margin: 0; }
+  .plain li { margin-bottom: 10px; }
+  .plain li:last-child { margin-bottom: 0; }
+
+  /* Skills */
+  .skills { display: grid; grid-template-columns: 190px 1fr; gap: 10px 20px; margin: 0; }
+  .skills dt { font-weight: 700; }
+  .skills dd { margin: 0; color: var(--ink); }
+
+  /* Contact */
+  .contact-lead { font-size: 1.3rem; font-weight: 500; line-height: 1.45; margin: 0 0 20px; max-width: 34ch; }
+  .contact-list { display: grid; grid-template-columns: 110px 1fr; gap: 8px 18px; margin: 0 0 28px; }
+  .contact-list dt { color: var(--muted); }
+  .contact-list dd { margin: 0; overflow-wrap: anywhere; }
+
+  footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: 0.9rem; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .hero .wrap { grid-template-columns: 1fr; gap: 40px; }
+    section.block .wrap { grid-template-columns: 1fr; gap: 20px; }
+    section.block .aside-note { max-width: none; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 1rem; }
+    .hero { padding: 24px 0 56px; }
+    .site-nav { gap: 14px; }
+    .more li { grid-template-columns: 1fr; }
+    .skills { grid-template-columns: 1fr; gap: 2px; }
+    .skills dd { margin-bottom: 12px; }
+    .contact-list { grid-template-columns: 1fr; gap: 0; }
+    .contact-list dd { margin-bottom: 12px; }
+    .layer-body { padding: 16px 14px 6px; }
+    .record td.n { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top">Gowri Javgal</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="#projects">Projects</a>
+      <a href="#research">Research</a>
+      <a href="#experience">Experience</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div>
+        <h1 id="hero-title">Gowri Javgal</h1>
+        <p class="lede">I build data pipelines that take messy records and turn them into numbers people can trust.</p>
+        <p class="sub">Computer Science student at Atria Institute of Technology, Bangalore, graduating in 2027. Looking for data engineering and data analytics roles. I work in Python, SQL, PySpark, Docker and Power BI.</p>
+        <div class="actions">
+          <a class="btn primary" href="resume.pdf" download>Download resume</a>
+          <a class="btn" href="https://github.com/Gowri-7124" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn" href="https://www.linkedin.com/in/gowri-javgal-02a883279" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+
+      <figure class="pipeline" data-stage="bronze" aria-label="One record moving through the bronze, silver and gold layers of my retail pipeline" style="margin:0">
+        <div class="layer-bar"></div>
+        <div class="layer-tabs" role="tablist" aria-label="Pipeline layer">
+          <button role="tab" data-stage="bronze" aria-selected="true" aria-controls="layer-panel" id="tab-bronze"><span class="swatch"></span>Bronze</button>
+          <button role="tab" data-stage="silver" aria-selected="false" aria-controls="layer-panel" id="tab-silver" tabindex="-1"><span class="swatch"></span>Silver</button>
+          <button role="tab" data-stage="gold" aria-selected="false" aria-controls="layer-panel" id="tab-gold" tabindex="-1"><span class="swatch"></span>Gold</button>
+        </div>
+        <div class="layer-body" id="layer-panel" role="tabpanel" aria-labelledby="tab-bronze" aria-live="polite">
+          <p class="layer-title"></p>
+          <p class="layer-desc"></p>
+          <table class="record"><tbody></tbody></table>
+        </div>
+        <figcaption class="pipeline-foot">
+          <span>One row through my retail pipeline (example data)</span>
+          <a href="https://github.com/Gowri-7124/retail-pyspark" target="_blank" rel="noopener">See the code</a>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="block" id="projects" aria-labelledby="projects-title">
+    <div class="wrap">
+      <div>
+        <h2 id="projects-title">Projects</h2>
+        <p class="aside-note">Pipelines, analysis and machine learning, each with its code on GitHub.</p>
+      </div>
+      <div class="content">
+
+        <article class="project">
+          <div class="project-head">
+            <h3>Retail data pipeline (medallion architecture)</h3>
+            <span class="when">Nov 2026</span>
+          </div>
+          <p class="stack">PySpark, Spark standalone cluster, Docker Compose, Parquet, Power BI</p>
+          <p class="outcome">An end-to-end PySpark pipeline that cleans 1 million transaction records through bronze, silver and gold layers.</p>
+          <ul>
+            <li>Wrote a Python generator that injects realistic defects at scale: repeated transaction IDs, about 50% invalid ages, about 33% negative prices and out-of-range discounts, about 21% ship dates before order dates, and mixed gender codes. Over 99% of raw rows carry at least one defect for the silver layer to fix.</li>
+            <li>Built three gold tables (daily sales metrics, city revenue and product-category performance) and visualised them in a Power BI dashboard.</li>
+            <li>Containerised a Spark cluster with one master and two workers using Docker Compose, so the full pipeline runs the same way on any machine.</li>
+          </ul>
+          <div class="links">
+            <a href="https://github.com/Gowri-7124/retail-pyspark" target="_blank" rel="noopener">Code on GitHub</a>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-head">
+            <h3>AI malware behaviour profiler <span class="badge">ICAIET 2026 paper</span></h3>
+            <span class="when">Feb 2026 to Aug 2026</span>
+          </div>
+          <p class="stack">Python, XGBoost, SHAP, FastAPI, WebSocket, React, MySQL</p>
+          <p class="outcome">An XGBoost model that classifies 10 malware families from Windows Sysmon telemetry and explains every detection.</p>
+          <ul>
+            <li>Each detection comes with SHAP feature attributions and an LLM-written explanation an analyst can read.</li>
+            <li>Built a real-time SOC dashboard with FastAPI, WebSocket and React that streams live Sysmon events with alerts, risk scores, threat history and remediation suggestions.</li>
+            <li>Tested end to end against simulated ransomware, trojan and keylogger attacks. The research paper was accepted at ICAIET 2026.</li>
+          </ul>
+          <div class="links">
+            <a href="https://github.com/Gowri-7124/malware-profiling-project" target="_blank" rel="noopener">Code on GitHub</a>
+            <a href="#research">Read about the paper</a>
+          </div>
+        </article>
+
+        <article class="project">
+          <div class="project-head">
+            <h3>Alzheimer's diagnosis data analysis</h3>
+            <span class="when">Nov 2026</span>
+          </div>
+          <p class="stack">Python, Pandas, PostgreSQL, Matplotlib, Seaborn, Power BI</p>
+          <p class="outcome">Found that the diagnosis rate was 77% higher among patients over 75 with a family history.</p>
+          <ul>
+            <li>Cleaned and analysed more than 74,000 patient records across 12 clinical and demographic features, handling missing values, inconsistent entries and categorical encoding.</li>
+            <li>Compared diagnosed and non-diagnosed groups with SQL queries in PostgreSQL.</li>
+            <li>Presented the risk-factor comparisons in Matplotlib and Seaborn charts and a Power BI dashboard.</li>
+          </ul>
+          <div class="links">
+            <a href="https://github.com/Gowri-7124/Alzeimer-s_Diagnosis_data_analysis" target="_blank" rel="noopener">Code on GitHub</a>
+          </div>
+        </article>
+
+        <h3 class="more-title">More on GitHub</h3>
+        <p class="more-intro">Smaller projects in forecasting, ETL and algorithms.</p>
+        <ul class="more">
+          <li>
+            <a href="https://github.com/Gowri-7124/Time_series_Analysis" target="_blank" rel="noopener">Retail sales forecasting</a>
+            <span>A 30-day sales forecast with Prophet and ARIMA, using Pandas, PostgreSQL and Power BI.</span>
+          </li>
+          <li>
+            <a href="https://github.com/Gowri-7124/Customer_Behaviour_Analysis" target="_blank" rel="noopener">Customer behaviour analysis</a>
+            <span>An end-to-end customer data pipeline: Python ETL into PostgreSQL, reported in Power BI.</span>
+          </li>
+          <li>
+            <a href="https://github.com/Gowri-7124/dijkstras" target="_blank" rel="noopener">Network route visualiser</a>
+            <span>Visualises shortest paths with Dijkstra and Bellman-Ford, written in Java.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="research" aria-labelledby="research-title">
+    <div class="wrap">
+      <div>
+        <h2 id="research-title">Research</h2>
+      </div>
+      <div class="content">
+        <p class="paper-title">Behavioral Profiling and Real-Time Threat Mitigation Using Machine Learning Ensembles on Windows Sysmon Telemetry</p>
+        <p class="authors"><strong>Gowri J P</strong>, Anusha Y S, Chinmayee K L, Chaithanya G K</p>
+        <p class="venue">Accepted at ICAIET 2026, Bhubaneswar (to be presented)</p>
+        <p>The paper describes the malware behaviour profiler above: an ensemble approach that profiles process behaviour from Sysmon logs, classifies malware families and supports real-time response from a SOC dashboard.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="experience" aria-labelledby="experience-title">
+    <div class="wrap">
+      <div>
+        <h2 id="experience-title">Experience</h2>
+      </div>
+      <div class="content">
+        <div class="entry">
+          <h3>Epik</h3>
+          <p class="role">UI/UX design intern, remote, Apr 2025 to May 2025</p>
+          <p>Designed wireframes, mockups and interactive prototypes for an electronics brand's social media page, with a focus on usability, accessibility and visual consistency. Worked with developers and stakeholders to turn requirements into responsive layouts and refined the navigation based on user feedback.</p>
+        </div>
+        <div class="entry">
+          <h3>Leadership and activities</h3>
+          <ul class="plain" style="margin-top:8px">
+            <li><strong>Design team lead</strong>, College Cybersecurity Club. Led digital branding and visual content.</li>
+            <li><strong>Social media lead</strong>, RevX Atria (Formula Student Bharat). Ran team outreach and community engagement.</li>
+            <li><strong>NSS volunteer.</strong> Rural development and community welfare projects.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="skills" aria-labelledby="skills-title">
+    <div class="wrap">
+      <div>
+        <h2 id="skills-title">Skills and education</h2>
+      </div>
+      <div class="content">
+        <dl class="skills">
+          <dt>Languages</dt><dd>Python, SQL, Java, JavaScript, C</dd>
+          <dt>Data engineering</dt><dd>PySpark, Spark (standalone cluster), Parquet, Docker, Docker Compose</dd>
+          <dt>Analytics and BI</dt><dd>Pandas, NumPy, Power BI, Excel, Matplotlib, Seaborn</dd>
+          <dt>Machine learning</dt><dd>Scikit-learn, XGBoost, SHAP</dd>
+          <dt>Databases and cloud</dt><dd>PostgreSQL, MySQL, AWS (S3, Lambda)</dd>
+          <dt>Web and tools</dt><dd>FastAPI, React, WebSocket, Git, GitHub</dd>
+          <dt>Education</dt><dd>B.E. in Computer Science, Atria Institute of Technology, Bangalore, 2023 to 2027. CGPA 8.75/10.</dd>
+          <dt>Certifications</dt><dd>Google Data Analytics Professional Certificate (Coursera, Oct 2026). SQL certificate (HackerRank, Nov 2026).</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="contact" aria-labelledby="contact-title">
+    <div class="wrap">
+      <div>
+        <h2 id="contact-title">Contact</h2>
+      </div>
+      <div class="content">
+        <p class="contact-lead">I'm looking for internships and graduate roles in data engineering and analytics. Email is the quickest way to reach me.</p>
+        <dl class="contact-list">
+          <dt>Email</dt><dd><a href="mailto:gowrijavgal07@gmail.com">gowrijavgal07@gmail.com</a></dd>
+          <dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/gowri-javgal-02a883279" target="_blank" rel="noopener">linkedin.com/in/gowri-javgal-02a883279</a></dd>
+          <dt>GitHub</dt><dd><a href="https://github.com/Gowri-7124" target="_blank" rel="noopener">github.com/Gowri-7124</a></dd>
+          <dt>Location</dt><dd>Bangalore, India</dd>
+        </dl>
+        <div class="actions">
+          <a class="btn primary" href="mailto:gowrijavgal07@gmail.com">Email me</a>
+          <a class="btn" href="resume.pdf" download>Download resume</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">Gowri Javgal, Bangalore. Last updated November 2026.</div>
+</footer>
+
+<script>
+(function () {
+  var stages = {
+    bronze: {
+      title: "Bronze: raw data as it arrives",
+      desc: "Nothing is fixed yet. Defects are kept so they can be traced.",
+      rows: [
+        ["txn_id", "T-004182", "repeated ID", "bad"],
+        ["gender", "\"f\"", "mixed codes", "bad"],
+        ["age", "-7", "invalid", "bad"],
+        ["unit_price", "349.00", "", ""],
+        ["discount", "0.10", "", ""],
+        ["order_date", "2026-03-14", "", ""],
+        ["ship_date", "2026-03-09", "before order", "bad"]
+      ]
+    },
+    silver: {
+      title: "Silver: cleaned and standardised",
+      desc: "Duplicates dropped, codes unified, impossible values nulled.",
+      rows: [
+        ["txn_id", "T-004182", "kept once", "fixed"],
+        ["gender", "F", "standardised", "fixed"],
+        ["age", "null", "out of range", "fixed"],
+        ["unit_price", "349.00", "", ""],
+        ["discount", "0.10", "", ""],
+        ["order_date", "2026-03-14", "", ""],
+        ["ship_date", "null", "flagged", "fixed"]
+      ]
+    },
+    gold: {
+      title: "Gold: ready for the dashboard",
+      desc: "Rows rolled up into daily metrics per city for Power BI.",
+      rows: [
+        ["date", "2026-03-14", "", "metric"],
+        ["city", "Bengaluru", "", "metric"],
+        ["orders", "1,284", "", "metric"],
+        ["revenue", "₹4,12,880", "", "metric"],
+        ["avg_discount", "12.4%", "", "metric"]
+      ]
+    }
+  };
+
+  var fig = document.querySelector(".pipeline");
+  var tabs = Array.prototype.slice.call(fig.querySelectorAll('[role="tab"]'));
+  var panel = document.getElementById("layer-panel");
+  var titleEl = panel.querySelector(".layer-title");
+  var descEl = panel.querySelector(".layer-desc");
+  var tbody = panel.querySelector("tbody");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var autoTimer = null;
+
+  function render(name, animate) {
+    var s = stages[name];
+    fig.setAttribute("data-stage", name);
+    titleEl.textContent = s.title;
+    descEl.textContent = s.desc;
+    tbody.innerHTML = "";
+    s.rows.forEach(function (r, i) {
+      var tr = document.createElement("tr");
+      if (r[3]) tr.className = r[3];
+      if (animate && !reduce) {
+        tr.classList.add("row-in");
+        tr.style.animationDelay = (i * 60) + "ms";
+      }
+      [["k", r[0]], ["v", r[1]], ["n", r[2]]].forEach(function (c) {
+        var td = document.createElement("td");
+        td.className = c[0];
+        td.textContent = c[1];
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    tabs.forEach(function (t) {
+      var on = t.getAttribute("data-stage") === name;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      if (on) panel.setAttribute("aria-labelledby", t.id);
+    });
+  }
+
+  function stopAuto() { if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; } }
+
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { stopAuto(); render(t.getAttribute("data-stage"), true); });
+    t.addEventListener("keydown", function (e) {
+      var next = null;
+      if (e.key === "ArrowRight") next = tabs[(i + 1) % tabs.length];
+      if (e.key === "ArrowLeft") next = tabs[(i - 1 + tabs.length) % tabs.length];
+      if (next) { e.preventDefault(); stopAuto(); next.focus(); render(next.getAttribute("data-stage"), true); }
+    });
+  });
+
+  render("bronze", true);
+
+  // Play the pipeline once on load: bronze, then silver, then gold.
+  if (!reduce) {
+    autoTimer = setTimeout(function () {
+      render("silver", true);
+      autoTimer = setTimeout(function () { render("gold", true); autoTimer = null; }, 2600);
+    }, 2600);
+  }
+})();
+</script>
+</body>
+</html>
